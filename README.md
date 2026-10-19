@@ -36,3 +36,36 @@ Quiz/
 ├── package.json             # Project dependencies and scripts
 ├── quiz.png                 # Project preview image
 └── server.js                # Application entry point
+```
+
+## ⚙️ Installation & Setup
+
+### 1. Clone the repository
+```bash
+git clone [https://github.com/your-username/quiz.git](https://github.com/your-username/quiz.git)
+cd quiz
+```
+
+### 2. Install dependencies
+```bash
+npm install
+```
+
+### 3. Configure environment variables
+Create a `.env` file in the root directory and add your database connection string and port:
+```env
+DATABASE_URL="your_database_connection_string_here"
+PORT=3000
+```
+
+### 4. Run database migrations
+Generate the Prisma client and apply migrations to your database:
+```bash
+npx prisma migrate dev
+npx prisma generate
+```
+
+### 5. Start the server
+```bash
+node server.js
+```
