@@ -1,0 +1,140 @@
+import { useEffect, useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { LogOut, User, Shield } from "lucide-react";
+import { motion } from "framer-motion";
+
+export default function Dashboard() {
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    // 🔐 Protect dashboard on load
+    useEffect(() => {
+        async function loadUser() {
+            try {
+                const res = await fetch("http://localhost:5000/api/auth/me", {
+                    credentials: "include",
+                });
+
+                if (!res.ok) {
+                    window.location.href = "login.html";
+                    return;
+                }
+
+                const data = await res.json();
+                setUser(data);
+            } catch (err) {
+                console.error("Auth error:", err);
+                window.location.href = "login.html";
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        loadUser();
+    }, []);
+
+    // 🚪 Logout
+    async function logout() {
+        try {
+            await fetch("http://localhost:5000/api/auth/logout", {
+                method: "POST",
+                credentials: "include",
+            });
+
+            window.location.href = "login.html";
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-screen bg-slate-950 text-white">
+                Loading dashboard...
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-slate-950 text-white p-6">
+            {/* HEADER */}
+            <div className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl font-bold">Dashboard</h1>
+
+                <Button onClick={logout} className="bg-red-500 hover:bg-red-600">
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Logout
+                </Button>
+            </div>
+
+            {/* USER CARD */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+            >
+                <Card className="bg-slate-900 border-slate-800 text-white mb-6">
+                    <CardContent className="p-6 flex items-center gap-4">
+                        <div className="bg-blue-600 p-3 rounded-full">
+                            <User />
+                        </div>
+                        <div>
+                            <h2 className="text-xl font-semibold">
+                                Welcome, {user?.username}
+                            </h2>
+                            <p className="text-slate-400">{user?.email}</p>
+                        </div>
+                    </CardContent>
+                </Card>
+            </motion.div>
+
+            {/* ROLE CARD */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+            >
+                <Card className="bg-slate-900 border-slate-800 text-white">
+                    <CardContent className="p-6 flex items-center gap-4">
+                        <div className="bg-green-600 p-3 rounded-full">
+                            <Shield />
+                        </div>
+                        <div>
+                            <h2 className="text-xl font-semibold">Role</h2>
+                            <p className="text-slate-400 capitalize">{user?.role}</p>
+                        </div>
+                    </CardContent>
+                </Card>
+            </motion.div>
+
+            {/* GRID SECTION */}
+            <div className="grid md:grid-cols-2 gap-6 mt-6">
+                {/* STATS */}
+                <Card className="bg-slate-900 border-slate-800">
+                    <CardContent className="p-6">
+                        <h3 className="text-lg font-bold mb-2">Quick Stats</h3>
+                        <p className="text-slate-400">
+                            You are successfully logged in 🎉
+                        </p>
+                    </CardContent>
+                </Card>
+
+                {/* TEACHER PANEL */}
+                {user?.role === "teacher" && (
+                    <Card className="bg-slate-900 border-slate-800">
+                        <CardContent className="p-6">
+                            <h3 className="text-lg font-bold mb-2">Teacher Panel</h3>
+                            <p className="text-slate-400">
+                                Manage students, quizzes and courses
+                            </p>
+
+                            <Button className="mt-4 bg-blue-600 hover:bg-blue-700">
+                                Open Panel
+                            </Button>
+                        </CardContent>
+                    </Card>
+                )}
+            </div>
+        </div>
+    );
+}

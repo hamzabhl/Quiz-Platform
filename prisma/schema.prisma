@@ -1,0 +1,99 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  role      Role
+  username  String    @unique
+  email     String    @unique
+  password  String
+  quizzes   Quiz[]
+  attempts  Attempt[]
+  createdAt DateTime  @default(now())
+}
+
+model Quiz {
+  id        Int       @id @default(autoincrement())
+  title     String
+  description String?
+  createdAt DateTime  @default(now())
+
+  createdBy Int
+  user      User      @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  questions Question[]
+  attempts  Attempt[]
+}
+
+model Question {
+  id       Int      @id @default(autoincrement())
+  text     String
+  type     QuestionType
+  points   Int
+
+  quizId   Int
+  quiz     Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  answers  Answer[]
+}
+
+model Answer {
+  id         Int      @id @default(autoincrement())
+  text       String
+  isCorrect  Boolean
+
+  questionId Int
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  attemptAnswers AttemptAnswer[]
+}
+
+model Attempt {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  quizId      Int
+  score       Int?
+  completedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  answers AttemptAnswer[]
+
+  createdAt DateTime @default(now())
+}
+
+model AttemptAnswer {
+  id        Int @id @default(autoincrement())
+  attemptId Int
+  answerId  Int
+  selectedAt DateTime @default(now())
+
+  attempt Attempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  answer  Answer  @relation(fields: [answerId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, answerId])
+}
+
+enum Role {
+  student
+  teacher
+  admin
+}
+
+enum QuestionType {
+  single
+  multiple
+  text
+}

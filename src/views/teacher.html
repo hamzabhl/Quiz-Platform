@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Teacher Dashboard</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: white;
+        }
+
+        .header {
+            background: #1e293b;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .container {
+            padding: 25px;
+        }
+
+        .card {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            background: #ef4444;
+            border: none;
+            padding: 10px 15px;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #dc2626;
+        }
+
+        .btn-blue {
+            background: #3b82f6;
+        }
+
+        .btn-blue:hover {
+            background: #2563eb;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h2>🎓 Teacher Dashboard</h2>
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <div class="container">
+
+        <div class="card">
+            <h3>Welcome 👋</h3>
+            <p id="teacherName">Loading...</p>
+            <p id="teacherEmail"></p>
+        </div>
+
+        <div class="card">
+            <h3>Teacher Actions</h3>
+
+            <button class="btn-blue" onclick="alert('Create Quiz coming soon')">
+                ➕ Create Quiz
+            </button>
+
+            <button class="btn-blue" onclick="alert('View Students coming soon')">
+                👨‍🎓 View Students
+            </button>
+        </div>
+
+        <div class="card" id="quizSection">
+            <h3>Your Quizzes</h3>
+            <p>No quizzes yet.</p>
+        </div>
+
+    </div>
+
+    <script>
+        // 🔐 Protect page
+        async function loadTeacher() {
+            try {
+                const res = await fetch("http://localhost:5000/api/auth/protection", {
+                    credentials: "include"
+                });
+
+                console.log(res);
+
+                // if (!res.ok) {
+                //     window.location.href = "login.html";
+                //     return;
+                // }
+
+
+                // 🚨 Role check
+                // if (user.role !== "teacher") {
+                //     alert("Access denied: Teachers only");
+                //     window.location.href = "login.html";
+                //     return;
+                // }
+
+                // display data
+                document.getElementById("teacherName").innerText = "Name: " + user.username;
+                document.getElementById("teacherEmail").innerText = "Email: " + user.email;
+
+            } catch (err) {
+                console.error(err);
+                // window.location.href = "login.html";
+            }
+        }
+
+        loadTeacher();
+
+        // 🚪 logout
+        async function logout() {
+            await fetch("http://localhost:5000/api/auth/logout", {
+                method: "POST",
+                credentials: "include"
+            });
+
+            window.location.href = "login.html";
+        }
+    </script>
+
+</body>
+
+</html>
